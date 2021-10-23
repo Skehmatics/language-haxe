@@ -1,0 +1,63 @@
+name: 'Haxe'
+scopeName: 'source.haxe'
+type: 'tree-sitter'
+parser: 'tree-sitter-haxe'
+fileTypes: ['hx']
+firstLineMatch: '''(?x)
+  # Hashbang
+  ^\\#!.*(?:\\s|\\/)
+    haxe
+  (?:$|\\s)
+  |
+  # Modeline
+  (?i:
+    # Emacs
+    -\\*-(?:\\s*(?=[^:;\\s]+\\s*-\\*-)|(?:.*?[;\\s]|(?<=-\\*-))mode\\s*:\\s*)
+      haxe
+    (?=[\\s;]|(?<![-*])-\\*-).*?-\\*-
+    |
+    # Vim
+    (?:(?:\\s|^)vi(?:m[<=>]?\\d+|m)?|\\sex)(?=:(?=\\s*set?\\s[^\\n:]+:)|:(?!\\s*set?\\s))(?:(?:\\s|\\s*:\\s*)\\w*(?:\\s*=(?:[^\\n\\\\\\s]|\\\\.)*)?)*[\\s:](?:filetype|ft|syntax)\\s*=
+      haxe
+    (?=\\s|:|$)
+  )
+'''
+
+folds: [
+    { type: 'comment' }
+]
+
+comments:
+  start: '// '
+
+scopes:
+  'module': 'source.haxe'
+
+  'comment': 'comment.line.double-slash.haxe'
+  'keyword': 'keyword.control'
+
+  'package_statement > keyword': 'keyword.package.haxe'
+  'import_statement > keyword': 'storage.import.haxe'
+  'import_statement > attribute > identifier': 'entity.name.type.import.haxe'
+
+  'class_declaration > keyword': 'storage.class.haxe'
+  'class_declaration > identifier': 'entity.name.type.class.haxe'
+  'class_declaration > attribute > identifier': 'entity.other.inherited-class.haxe'
+
+  'function_declaration > keyword': 'keyword.function.haxe'
+  'function_declaration > identifier': 'entity.name.type.function.haxe'
+
+  'variable_declaration > keyword': 'keyword.variable.haxe'
+
+  'call > attribute:nth-child(0) > identifier': [
+    { match: 'super|trace', scopes: 'support.function.haxe'},
+    { match: '^[A-Z]', scopes: 'support.type.contructor' },
+    'entity.name.function',
+  ]
+
+  'attribute > identifier': [
+    { match: '^[A-Z]', scopes: 'entity.name.type.package' },
+    { match: 'this|super', scopes: 'variable.language.haxe' },
+  ]
+
+  'type > identifier': 'support.storage.type'
